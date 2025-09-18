@@ -30,9 +30,8 @@ jobs:
       - name: Build tests
         run: |
           mkdir -p build
-          # Adjust these globs to your structure/file names
-          SRC_FILES="$(ls src/*.cpp 2>/dev/null || true)"
-          TEST_FILES="$(ls tests/*.cpp 2>/dev/null || true)"
+          SRC_FILES="$(find src -name '*.cpp')"
+          TEST_FILES="$(find tests -name '*.cpp')"
           g++ -std=c++20 -O2 -Iinclude $SRC_FILES $TEST_FILES \
               -lgtest -lpthread -o build/tests
 
