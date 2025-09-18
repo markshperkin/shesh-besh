@@ -1,0 +1,40 @@
+name: Build & Test (g++)
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'src/**'
+      - 'include/**'
+      - 'tests/**'
+      - '.github/workflows/**'
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install compiler and GoogleTest
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++ libgtest-dev cmake
+          # Build gtest static libs (Ubuntu ships sources)
+          cd /usr/src/gtest
+          sudo cmake -S . -B build
+          sudo cmake --build build --parallel
+          sudo cp build/lib/*.a /usr/lib/
+
+      - name: Build tests
+        run: |
+          mkdir -p build
+          # Adjust these globs to your structure/file names
+          SRC_FILES="$(ls src/*.cpp 2>/dev/null || true)"
+          TEST_FILES="$(ls tests/*.cpp 2>/dev/null || true)"
+          g++ -std=c++20 -O2 -Iinclude $SRC_FILES $TEST_FILES \
+              -lgtest -lpthread -o build/tests
+
+      - name: Run tests
+        run: ./build/tests
