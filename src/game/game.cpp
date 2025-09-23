@@ -24,7 +24,7 @@ namespace bg {
             if (winner_) return *winner_;
             state_.sideToMove = (state_.sideToMove == Side::White) ? Side::Black : Side::White;
             dice = rules_.rollDice(); // roll the dice for next ply
-            if (dice.size() == 2 && dice[0] == dice[1]) dice = {dice[0], dice[0], dice[0], dice[0]};
+            if (dice[0] == dice[1]) dice = {dice[0], dice[0], dice[0], dice[0]};
         }
         return *winner_;
     }

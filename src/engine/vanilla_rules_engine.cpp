@@ -73,7 +73,7 @@ std::vector<Step> VanillaRulesEngine::getAllLegalMoves(const GameState& s,
   
   if (dice.empty()) return {};
   std::vector<int> iterDice = dice;
-  if (iterDice.size() >= 2 && iterDice[0] == iterDice[1]) iterDice.resize(1); // debug check
+  if (iterDice.size() >= 2 && iterDice[0] == iterDice[1]) iterDice.resize(1); // remove excess dice.
 
   const bg::Side side = s.sideToMove;
   const Phase phase = (side == Side::White) ? s.phaseWhite : s.phaseBlack;
