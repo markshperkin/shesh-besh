@@ -6,9 +6,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON) # no fall back to older standard if the comp
 
 # Backgammon rules library
 add_library(backgammon 
-    src/vanilla_rules_engine.cpp
-    src/board.cpp
-    src/dice.cpp
+    src/engine/vanilla_rules_engine.cpp
+    src/engine/board.cpp
+    src/engine/dice.cpp
+    src/game/game.cpp
+    src/game/match.cpp
+    src/players/rbot.cpp
 )
 
 target_include_directories(backgammon

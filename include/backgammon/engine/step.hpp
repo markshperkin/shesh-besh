@@ -11,6 +11,7 @@ namespace bg {
 
     s from{};
     s to{};
+    s die{};
 
     static bool isPoint(const s& s)    noexcept { return std::holds_alternative<int>(s); }
     static bool isBar(const s& s)      noexcept { return std::holds_alternative<BarTag>(s); }

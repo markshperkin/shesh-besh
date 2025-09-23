@@ -1,4 +1,5 @@
-#include "../include/backgammon/vanilla_rules_engine.hpp"
+// #include "../include/backgammon/engine/vanilla_rules_engine.hpp" // check if new path works
+#include "backgammon/engine/vanilla_rules_engine.hpp"
 #include <algorithm>
 #include <cassert>
 
@@ -26,14 +27,12 @@ GameState VanillaRulesEngine::initialState() const {
     s.board.setPoint(18, -5);
 
     s.cube = DoublingCube{};
-    s.phase = Phase::StartRoll;
-    s.sideToMove = std::nullopt;
     s.winner = std::nullopt;
 
     return s;
 }
 
-std::pair<int,int> VanillaRulesEngine::rollDice() const {
+std::vector<int> VanillaRulesEngine::rollDice() const {
   Dice dice;
   return dice.rollDice(1, 6);
 }
@@ -42,9 +41,9 @@ std::pair<int,int> VanillaRulesEngine::rollDice() const {
 OpeningResult VanillaRulesEngine::openingRoll() const {
   OpeningResult r;
   while (true) {
-    auto roll = rollDice();
-    int whiteDie = roll.first;
-    int blackDie = roll.second;
+    std::vector<int> roll = rollDice();
+    int whiteDie = roll[0];
+    int blackDie = roll[1];
 
     if (whiteDie == blackDie) continue;
     
@@ -70,42 +69,43 @@ OpeningResult VanillaRulesEngine::openingRoll() const {
 // }
 
 std::vector<Step> VanillaRulesEngine::getAllLegalMoves(const GameState& s,
-                                                 std::vector<int> dice) const {
+                                                 const std::vector<int>& dice) const {
   
-  if (!s.sideToMove) return {};
-  
-  if (dice[0] == dice[1]) dice.resize(1);
+  if (dice.empty()) return {};
+  std::vector<int> iterDice = dice;
+  if (iterDice.size() >= 2 && iterDice[0] == iterDice[1]) iterDice.resize(1); // debug check
 
-  const bg::Side side = *s.sideToMove;
+  const bg::Side side = s.sideToMove;
+  const Phase phase = (side == Side::White) ? s.phaseWhite : s.phaseBlack;
 
   std::vector<Step> steps;
   const std::vector<int> fromPts = s.board.locations(side);
 
-  if (s.phase == Phase::Normal) {
+  if (phase == Phase::Normal) {
     for (int from : fromPts) {
-      for (int die : dice) {
+      for (int die : iterDice) {
         int to = getEndIdx(side, from, die, Phase::Normal);
         if (to < 0 || to >= 24) continue;
-        if (isPointOpen(s.board, to, side) && isValidMove(s.board, side, from, to)) steps.emplace_back(Step{ from, to });
+        if (isPointOpen(s.board, to, side) && isValidMove(s.board, side, from, to)) steps.emplace_back(Step{ from, to, die });
       }
     }
   }
   
-  else if (s.phase == Phase::Re_Entry) {
-    for (int die : dice) {
+  else if (phase == Phase::Re_Entry) {
+    for (int die : iterDice) {
       int to = getEndIdx(side, 0, die, Phase::Re_Entry);
-      if (isPointOpen(s.board, to, side) && to >= 0 && to < 24) steps.emplace_back(Step{ Step::BarTag{}, to });
+      if (isPointOpen(s.board, to, side) && to >= 0 && to < 24) steps.emplace_back(Step{ Step::BarTag{}, to, die });
     }
   }
 
-  else if (s.phase == Phase::Bear_Off) {
+  else if (phase == Phase::Bear_Off) {
     for (int from : fromPts) {
-      for (int die : dice) {
+      for (int die : iterDice) {
         int to = getEndIdx(side, from, die, Phase::Bear_Off);
         if (to >=0 && to <= 23) steps.emplace_back(Step{ from, to });
         else {
           if (to == -1 || to == 24) steps.emplace_back(Step{ from, Step::BearOffTag{} });
-          else if (canBearOff(side, from, s.board)) steps.emplace_back(Step{ from, Step::BearOffTag{} });
+          else if (canBearOff(side, from, s.board)) steps.emplace_back(Step{ from, Step::BearOffTag{}, die });
         } 
       }
     }
@@ -126,7 +126,7 @@ int VanillaRulesEngine::isGameOver(const GameState& s) const {
 
 void VanillaRulesEngine::applyStep(GameState& s, const Step&  step) const {
   Board& b = s.board;
-  Side side = *s.sideToMove;
+  Side side = s.sideToMove;
   
   if (Step::isPoint(step.from) && Step::isPoint(step.to)) {
     int from = std::get<int>(step.from);
@@ -146,6 +146,26 @@ void VanillaRulesEngine::applyStep(GameState& s, const Step&  step) const {
   else if (Step::isPoint(step.from) && Step::isBearOff(step.to)) {
     int from = std::get<int>(step.from);
     b.bearOff(side, from);
+  }
+  updatePhases(s);
+}
+
+void VanillaRulesEngine::updatePhases(GameState& s) const {
+  // white phase update
+  if (s.board.bar(Side::White) > 0) {
+    s.phaseWhite = Phase::Re_Entry;
+  } else if (isAllInHome(s.board, Side::White)) {
+    s.phaseWhite = Phase::Bear_Off;
+  } else {
+    s.phaseWhite = Phase::Normal;
+  }
+  // black phase udpate
+  if (s.board.bar(Side::Black) > 0) {
+    s.phaseBlack = Phase::Re_Entry;
+  } else if (isAllInHome(s.board, Side::Black)) {
+    s.phaseBlack = Phase::Bear_Off;
+  } else {
+    s.phaseBlack = Phase::Normal;
   }
 }
 

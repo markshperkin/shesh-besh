@@ -15,7 +15,7 @@ struct IRulesEngine {
 
   virtual GameState initialState() const = 0;
 
-  virtual std::pair<int,int> rollDice() const = 0;
+  virtual std::vector<int> rollDice() const = 0;
 
   virtual OpeningResult openingRoll() const = 0;
 
@@ -30,7 +30,7 @@ struct IRulesEngine {
 
 
   virtual std::vector<Step> getAllLegalMoves(const GameState& s,
-                                       std::vector<int> dice) const = 0;
+                                       const std::vector<int>& dice) const = 0;
 
   virtual bool isPassForced(const GameState& s,
                             const std::vector<int>& dice) const = 0;
@@ -38,6 +38,8 @@ struct IRulesEngine {
   virtual int isGameOver(const GameState& s) const = 0;
 
   virtual void applyStep(GameState& s, const Step& step) const = 0;
+
+  virtual void updatePhases(GameState& s) const = 0;
 
 };
 

@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "backgammon/vanilla_rules_engine.hpp"
+#include "backgammon/engine/vanilla_rules_engine.hpp"
 #include <set>
 #include <string>
 
@@ -40,8 +40,6 @@ protected:
 
 // init
 TEST_F(VanillaEngineTest, InitializesCorrectly) {
-    EXPECT_EQ(state_.phase, Phase::StartRoll);
-    EXPECT_FALSE(state_.sideToMove.has_value());
     EXPECT_FALSE(state_.winner.has_value());
 
     // bar and borne-off checkers start at 0
@@ -77,8 +75,8 @@ TEST_F(VanillaEngineTest, InitializesCorrectly) {
 TEST_F(VanillaEngineTest, OpeningRollChoosesSide) {
     OpeningResult r = engine_.openingRoll();
 
-    EXPECT_NE(r.startingDice.first, r.startingDice.second);
-    if (r.startingDice.first > r.startingDice.second) EXPECT_EQ(r.winner, Side::White);
+    EXPECT_NE(r.startingDice[0], r.startingDice[1]);
+    if (r.startingDice[0] > r.startingDice[1]) EXPECT_EQ(r.winner, Side::White);
     else EXPECT_EQ(r.winner, Side::Black);
 }
 
@@ -86,7 +84,8 @@ TEST_F(VanillaEngineTest, OpeningRollChoosesSide) {
 TEST_F(VanillaEngineTest, GeneratesLegalMoves_normal) {
     // test for Side = White
     state_.sideToMove = Side::White;
-    state_.phase = Phase::Normal;
+    state_.phaseWhite = Phase::Normal;
+    state_.phaseBlack = Phase::Normal;
 
     std::vector<int> dice = {1,1};
     std::vector<Step> moves = engine_.getAllLegalMoves(state_, dice);
@@ -141,7 +140,8 @@ TEST_F(VanillaEngineTest, GeneratesLegalMoves_normal) {
 TEST_F(VanillaEngineTest, GeneratesLegalMoves_re_entry) {
     // test for Side = White
     state_.sideToMove = Side::White;
-    state_.phase = Phase::Re_Entry;
+    state_.phaseWhite = Phase::Re_Entry;
+    state_.phaseBlack = Phase::Re_Entry;
     state_.board.clear();
     std::vector<int> dice = {6, 6};
 
@@ -201,7 +201,8 @@ TEST_F(VanillaEngineTest, GeneratesLegalMoves_re_entry) {
 TEST_F(VanillaEngineTest, GeneratesLegalMoves_bear_off) {
     // test for Side = White
     state_.sideToMove = Side::White;
-    state_.phase = Phase::Bear_Off;
+    state_.phaseWhite = Phase::Bear_Off;
+    state_.phaseBlack = Phase::Bear_Off;
     state_.board.clear();
     std::vector<int> dice = {1, 1};
 
@@ -247,7 +248,6 @@ TEST_F(VanillaEngineTest, GeneratesLegalMoves_bear_off) {
 
     // test for Side = Black
     state_.sideToMove = Side::Black;
-    state_.phase = Phase::Bear_Off;
     state_.board.clear();
     dice = {1, 1};
 
@@ -296,7 +296,8 @@ TEST_F(VanillaEngineTest, GeneratesLegalMoves_bear_off) {
 TEST_F(VanillaEngineTest, apply_step_normal) {
     // testing Side = White
     state_.sideToMove = Side::White;
-    state_.phase = Phase::Normal;
+    state_.phaseWhite = Phase::Normal;
+    state_.phaseBlack = Phase::Normal;
 
     Step step{23, 22};
     engine_.applyStep(state_, step);
@@ -339,7 +340,8 @@ TEST_F(VanillaEngineTest, apply_step_normal) {
 TEST_F(VanillaEngineTest, apply_step_re_entry) {
     // testing side = White
     state_.sideToMove = Side::White;
-    state_.phase = Phase::Re_Entry;
+    state_.phaseWhite = Phase::Re_Entry;
+    state_.phaseBlack = Phase::Re_Entry;
 
     state_.board.setBar(Side::White, 1);
     EXPECT_EQ(state_.board.bar(Side::White), 1);
@@ -383,7 +385,8 @@ TEST_F(VanillaEngineTest, apply_step_re_entry) {
 TEST_F(VanillaEngineTest, apply_step_bear_off) {
     // testing side = White
     state_.sideToMove = Side::White;
-    state_.phase = Phase::Bear_Off;
+    state_.phaseWhite = Phase::Bear_Off;
+    state_.phaseBlack = Phase::Bear_Off;
     state_.board.clear();
 
     state_.board.setPoint(5, 15);
@@ -410,4 +413,26 @@ TEST_F(VanillaEngineTest, apply_step_bear_off) {
     engine_.applyStep(state_, step);
     EXPECT_EQ(state_.board.point(18), -13);
     EXPECT_EQ(state_.board.borneOff(Side::Black), 2);
+}
+
+TEST_F(VanillaEngineTest, update_phases) {
+    // testing normal phase
+    engine_.updatePhases(state_);
+    EXPECT_EQ(state_.phaseWhite, Phase::Normal);
+    EXPECT_EQ(state_.phaseBlack, Phase::Normal);
+
+    // testing re entry phase
+    state_.board.setBar(Side::White, 1);
+    state_.board.setBar(Side::Black, 1);
+    engine_.updatePhases(state_);
+    EXPECT_EQ(state_.phaseWhite, Phase::Re_Entry);
+    EXPECT_EQ(state_.phaseBlack, Phase::Re_Entry);
+
+    // testing bear off phase
+    state_.board.clear();
+    state_.board.setPoint(0,15);
+    state_.board.setPoint(23,-15);
+    engine_.updatePhases(state_);
+    EXPECT_EQ(state_.phaseWhite, Phase::Bear_Off);
+    EXPECT_EQ(state_.phaseBlack, Phase::Bear_Off);
 }

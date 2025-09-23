@@ -1,4 +1,4 @@
-#include "../include/backgammon/board.hpp"
+#include "../include/backgammon/engine/board.hpp"
 
 #include <sstream>
 

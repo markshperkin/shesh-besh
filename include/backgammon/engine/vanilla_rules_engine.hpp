@@ -12,7 +12,7 @@ std::string name() const override;
 
   GameState initialState() const override;
 
-  std::pair<int,int> rollDice() const override;
+  std::vector<int> rollDice() const override;
 
   OpeningResult openingRoll() const override;
 
@@ -25,7 +25,7 @@ std::string name() const override;
   //                                   DoubleDecision decision) const override;
 
   std::vector<Step> getAllLegalMoves(const GameState& s,
-                               std::vector<int> dice) const override;
+                               const std::vector<int>& dice) const override;
 
   bool isPassForced(const GameState& s,
                     const std::vector<int>& dice) const override;
@@ -33,6 +33,8 @@ std::string name() const override;
   int isGameOver(const GameState& s) const override;
 
   void applyStep(GameState& s, const Step& step) const override;
+
+  void updatePhases(GameState& s) const override;
 
 private:
 

@@ -29,14 +29,15 @@ struct DoublingCube {
 struct GameState {
   Board board;
   DoublingCube cube{};
-  std::optional<Side> sideToMove;
-  Phase phase{Phase::StartRoll};
+  Side sideToMove;
+  Phase phaseWhite{Phase::Normal};
+  Phase phaseBlack{Phase::Normal};
   std::optional<Side> winner;
 };
 
 struct OpeningResult {
   Side winner;
-  std::pair<int,int> startingDice;
+  std::vector<int> startingDice;
 };
 
 // ---"Result" helpers 
