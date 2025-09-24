@@ -21,7 +21,7 @@ jobs:
         run: cmake -S . -B build
 
       - name: Build
-        run: cmake --build build
+        run: cmake --build build --config Debug
 
       - name: Run tests
-        run: ctest --test-dir build -C Debug
+        run: ctest -C Debug
