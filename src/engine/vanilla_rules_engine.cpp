@@ -1,4 +1,3 @@
-// #include "../include/backgammon/engine/vanilla_rules_engine.hpp" // check if new path works
 #include "backgammon/engine/vanilla_rules_engine.hpp"
 #include <algorithm>
 #include <cassert>
@@ -102,9 +101,11 @@ std::vector<Step> VanillaRulesEngine::getAllLegalMoves(const GameState& s,
     for (int from : fromPts) {
       for (int die : iterDice) {
         int to = getEndIdx(side, from, die, Phase::Bear_Off);
-        if (to >=0 && to <= 23) steps.emplace_back(Step{ from, to });
+        if (to >=0 && to <= 23 && isPointOpen(s.board, to , side) && isValidMove(s.board, side, from, to)) {
+          steps.emplace_back(Step{ from, to, die });
+        }
         else {
-          if (to == -1 || to == 24) steps.emplace_back(Step{ from, Step::BearOffTag{} });
+          if (to == -1 || to == 24) steps.emplace_back(Step{ from, Step::BearOffTag{}, die });
           else if (canBearOff(side, from, s.board)) steps.emplace_back(Step{ from, Step::BearOffTag{}, die });
         } 
       }
@@ -127,7 +128,6 @@ int VanillaRulesEngine::isGameOver(const GameState& s) const {
 void VanillaRulesEngine::applyStep(GameState& s, const Step&  step) const {
   Board& b = s.board;
   Side side = s.sideToMove;
-  
   if (Step::isPoint(step.from) && Step::isPoint(step.to)) {
     int from = std::get<int>(step.from);
     int to = std::get<int>(step.to);
@@ -179,13 +179,15 @@ int VanillaRulesEngine::getEndIdx(Side side, int start, int die, Phase phase) co
 }
 
 bool VanillaRulesEngine::canBearOff(Side side, int start, const Board& b) const {
+  if (b.bar(side) > 0) return false;
+
   if (side == Side::White) {
-    for (int i = start+1; i <= 5; i++) {
+    for (int i = start+1; i <= 5; ++i) {
       if (b.point(i) > 0) return false;
     }
   }
   else {
-    for (int i = start-1; i >= 18; i--) {
+    for (int i = start-1; i >= 18; --i) {
       if (b.point(i) < 0) return false;
     }
   }
@@ -201,19 +203,19 @@ bool VanillaRulesEngine::isPointOpen(const Board& b, int p, Side side) const {
 }
 
 bool VanillaRulesEngine::isAllInHome(const Board& b, Side side) const {
-  if (b.bar(side) != 0) return false;
-  const int total = 15;
-  int inHome = b.borneOff(side);
-  if (side == Side::White) {
-    for (int i = 0; i <= 5; ++i) if (b.point(i) > 0) inHome += b.point(i);
-  } else {
-    for (int i = 18; i <= 23; ++i) if (b.point(i) < 0) inHome += -b.point(i);
-  }
-  return inHome == total;
-}
+  if (b.bar(side) > 0) return false;
 
-bool VanillaRulesEngine::hasBar(const Board& b, Side side) const {
-  return b.bar(side) != 0;
+  if (side == Side::White) {
+    for (int i = 6; i <= 23; ++i) {
+      if (b.point(i) > 0) return false;
+    }
+  }
+  else {
+    for (int i = 0; i <= 17; ++i) {
+      if (b.point(i) < 0) return false;
+    }
+  }
+  return true;
 }
 
 bool VanillaRulesEngine::isValidMove(const Board& b, Side side, int start, int end) const {

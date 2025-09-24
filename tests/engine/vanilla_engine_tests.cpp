@@ -38,6 +38,16 @@ protected:
 
 // --- test cases
 
+TEST_F(VanillaEngineTest, rollDiceTest) {
+    for (int i = 0; i < 1000; ++i) {
+        std::vector<int> dice = engine_.rollDice();
+        EXPECT_GE(dice[0], 1);
+        EXPECT_GE(dice[1], 1);
+        EXPECT_LE(dice[0], 6);
+        EXPECT_LE(dice[1], 6);
+    }
+}
+
 // init
 TEST_F(VanillaEngineTest, InitializesCorrectly) {
     EXPECT_FALSE(state_.winner.has_value());
@@ -91,6 +101,7 @@ TEST_F(VanillaEngineTest, GeneratesLegalMoves_normal) {
     std::vector<Step> moves = engine_.getAllLegalMoves(state_, dice);
     std::set<std::string> unique = uniqueMoveKeys(moves);
     EXPECT_EQ(unique.size(), moves.size());
+     
 
     dice = {1,2};
     moves = engine_.getAllLegalMoves(state_, dice);
@@ -117,6 +128,7 @@ TEST_F(VanillaEngineTest, GeneratesLegalMoves_normal) {
     moves = engine_.getAllLegalMoves(state_, dice);
     unique = uniqueMoveKeys(moves);
     EXPECT_EQ(unique.size(), moves.size());
+     
 
     dice = {1,2};
     moves = engine_.getAllLegalMoves(state_, dice);
@@ -167,6 +179,7 @@ TEST_F(VanillaEngineTest, GeneratesLegalMoves_re_entry) {
     moves = engine_.getAllLegalMoves(state_, dice);
     unique = uniqueMoveKeys(moves);
     EXPECT_EQ(unique.size(), moves.size());
+     
 
     // test for Side = Black
     state_.sideToMove = Side::Black;
@@ -195,6 +208,7 @@ TEST_F(VanillaEngineTest, GeneratesLegalMoves_re_entry) {
     moves = engine_.getAllLegalMoves(state_, dice);
     unique = uniqueMoveKeys(moves);
     EXPECT_EQ(unique.size(), moves.size());
+     
 }
 
 // --- tests for bear off moves
@@ -218,6 +232,7 @@ TEST_F(VanillaEngineTest, GeneratesLegalMoves_bear_off) {
     std::vector<Step> moves = engine_.getAllLegalMoves(state_, dice);
     std::set<std::string> unique = uniqueMoveKeys(moves);
     EXPECT_EQ(unique.size(), moves.size());
+     
 
     dice = {1, 5};
     moves = engine_.getAllLegalMoves(state_, dice);
@@ -231,6 +246,7 @@ TEST_F(VanillaEngineTest, GeneratesLegalMoves_bear_off) {
     moves = engine_.getAllLegalMoves(state_, dice);
     unique = uniqueMoveKeys(moves);
     EXPECT_EQ(unique.size(), moves.size());
+     
     for (const auto& m : moves) {
         EXPECT_FALSE(std::holds_alternative<bg::Step::BearOffTag>(m.to)); // check that there is no bear off moves
     }
@@ -242,6 +258,7 @@ TEST_F(VanillaEngineTest, GeneratesLegalMoves_bear_off) {
     moves = engine_.getAllLegalMoves(state_, dice);
     unique = uniqueMoveKeys(moves);
     EXPECT_EQ(unique.size(), moves.size());
+     
     for (const auto& m : moves) {
         EXPECT_TRUE(std::holds_alternative<bg::Step::BearOffTag>(m.to)); // check that there is bear off moves
     }
@@ -263,6 +280,7 @@ TEST_F(VanillaEngineTest, GeneratesLegalMoves_bear_off) {
     moves = engine_.getAllLegalMoves(state_, dice);
     unique = uniqueMoveKeys(moves);
     EXPECT_EQ(unique.size(), moves.size());
+     
 
     dice = {1, 5};
     moves = engine_.getAllLegalMoves(state_, dice);
@@ -275,6 +293,7 @@ TEST_F(VanillaEngineTest, GeneratesLegalMoves_bear_off) {
     dice = {4, 4};
     moves = engine_.getAllLegalMoves(state_, dice);
     unique = uniqueMoveKeys(moves);
+     
     EXPECT_EQ(unique.size(), moves.size());
     for (const auto& m : moves) {
         EXPECT_FALSE(std::holds_alternative<bg::Step::BearOffTag>(m.to)); // check that there is no bear off moves
@@ -287,6 +306,7 @@ TEST_F(VanillaEngineTest, GeneratesLegalMoves_bear_off) {
     moves = engine_.getAllLegalMoves(state_, dice);
     unique = uniqueMoveKeys(moves);
     EXPECT_EQ(unique.size(), moves.size());
+     
     for (const auto& m : moves) {
         EXPECT_TRUE(std::holds_alternative<bg::Step::BearOffTag>(m.to)); // check that there is bear off moves
     }

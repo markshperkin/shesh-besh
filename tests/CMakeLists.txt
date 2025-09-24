@@ -8,14 +8,14 @@ target_link_libraries(vanilla_engine_tests
   )
 add_test(NAME VanillaEngineTests COMMAND vanilla_engine_tests)
 
-add_executable(rbot_parallel_tests
-  game/rbot_parallel_tests.cpp
+add_executable(vanilla_rules
+  game/game_rbot_tests.cpp
 )
 
-target_link_libraries(rbot_parallel_tests
+target_link_libraries(vanilla_rules
   PRIVATE backgammon GTest::gtest_main
 )
 
-add_test(NAME rbot_parallel_tests COMMAND rbot_parallel_tests)
+add_test(NAME vanilla_rules COMMAND vanilla_rules)
 
 

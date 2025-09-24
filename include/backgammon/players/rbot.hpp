@@ -7,7 +7,7 @@ namespace bg {
 
     class RBot : public IPlayer {
         public:
-            explicit RBot(std::string name = "Rbot", uint64_t seed = 123456)
+            explicit RBot(std::string name = "Rbot", int seed = 123456)
                 : name_(std::move(name)), rng_(seed) {}
 
             std::string name() override { return name_; }

@@ -46,8 +46,6 @@ private:
 
   bool isAllInHome(const bg::Board& b, Side side) const;
 
-  bool hasBar(const bg::Board& b, Side side) const;
-
   bool isValidMove(const bg::Board& b, Side side, int start, int end) const;
 
 };
