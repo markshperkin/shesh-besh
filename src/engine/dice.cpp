@@ -1,4 +1,4 @@
-#include "../include/backgammon/engine/dice.hpp"
+#include "backgammon/engine/dice.hpp"
 
 namespace bg {
 

@@ -2,9 +2,9 @@
 
 #include <optional>
 #include <vector>
-#include "../engine/irules_engine.hpp"
-#include "../engine/enums.hpp"
-#include "../engine/types.hpp"
+#include "backgammon/engine/irules_engine.hpp"
+#include "backgammon/engine/enums.hpp"
+#include "backgammon/engine/types.hpp"
 #include "iplayer.hpp"
 
 namespace bg {
