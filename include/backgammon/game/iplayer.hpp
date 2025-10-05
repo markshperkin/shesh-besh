@@ -6,7 +6,8 @@
 namespace bg {
     struct IPlayer {
         virtual ~IPlayer() = default;
-        virtual std::string name() = 0;
+        virtual std::string playerId() = 0;
+        virtual std::string displayName() = 0;
         virtual Step makeStep(const std::vector<Step>& steps) = 0;
     };
 
