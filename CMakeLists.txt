@@ -10,7 +10,8 @@ add_library(backgammon
     src/engine/board.cpp
     src/engine/dice.cpp
     src/game/game.cpp
-    src/game/match.cpp
+    src/game/match_session.cpp
+    src/game/match_maker.cpp
     src/players/rbot.cpp
 )
 
