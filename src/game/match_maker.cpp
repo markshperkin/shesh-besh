@@ -53,6 +53,7 @@ namespace bg {
         rematchVotes_.erase(matchId); // reset eny prior votes just in case
 
         GameResult res = sessionPTr -> play_once();
+        return res;
     }
 
     const MatchSession* MatchMaker::find(const std::string& matchid) const noexcept {

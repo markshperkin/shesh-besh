@@ -103,18 +103,21 @@ namespace bg {
         return oss.str();
     }
     
-    std::pair<int,int> Board::distanceToWin() const { // uses white and black direction oppoiste. NEED FIX
+    std::pair<int,int> Board::distanceToWin() const {
         int whiteDist = 0;
         int blackDist = 0;
         int n = points_.size();
 
+        // White moves toward index 0 (home 0-5), so distance = index value
+        // Black moves toward index 23 (home 18-23), so distance = (n-1) - index
         for (int i = 0; i < n; ++i) {
             int v = points_[i];
-            if (v > 0) whiteDist += v * i;
-            else if (v < 0) blackDist += v * (n - i);
+            if (v > 0) whiteDist += v * (i + 1);
+            else if (v < 0) blackDist += (-v) * (n - i);
         }
-        whiteDist += bar_white_ * n;
-        blackDist -= bar_black_ * n;
+        // checkers on bar are farthest: full board length + 1
+        whiteDist += bar_white_ * (n + 1);
+        blackDist += bar_black_ * (n + 1);
 
         return { whiteDist, blackDist };
     }

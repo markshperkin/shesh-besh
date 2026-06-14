@@ -435,6 +435,67 @@ TEST_F(VanillaEngineTest, apply_step_bear_off) {
     EXPECT_EQ(state_.board.borneOff(Side::Black), 2);
 }
 
+TEST_F(VanillaEngineTest, distanceToWin_initial) {
+    // initial state: symmetric opening position
+    auto [w, b] = state_.board.distanceToWin();
+    // both sides should be equal by symmetry
+    EXPECT_EQ(w, b);
+    EXPECT_GT(w, 0);
+    EXPECT_GT(b, 0);
+}
+
+TEST_F(VanillaEngineTest, distanceToWin_closer_to_zero_as_checkers_advance) {
+    Board board;
+    // White: one checker at point 5 (one step from home edge)
+    board.setPoint(5, 1);
+    // White: one checker at point 23 (far from home)
+    board.setPoint(23, 1);
+    auto [wFar, _1] = board.distanceToWin();
+
+    Board board2;
+    board2.setPoint(1, 1);   // closer to home
+    board2.setPoint(23, 1);
+    auto [wClose, _2] = board2.distanceToWin();
+
+    EXPECT_LT(wClose, wFar);
+}
+
+TEST_F(VanillaEngineTest, distanceToWin_bar_adds_max_distance) {
+    Board board;
+    board.setPoint(23, 1); // one white checker on board
+    auto [wNormal, _1] = board.distanceToWin();
+
+    Board board2;
+    board2.setBar(Side::White, 1); // same checker but on bar
+    auto [wBar, _2] = board2.distanceToWin();
+
+    EXPECT_GT(wBar, wNormal);
+}
+
+TEST_F(VanillaEngineTest, distanceToWin_both_sides_independent) {
+    Board board;
+    // White at point 1: distance = 1+1 = 2 per checker → total 30
+    board.setPoint(1, 15);
+    // Black at point 21: distance = 24-21 = 3 per checker → total 45
+    board.setPoint(21, -15);
+    auto [w, b] = board.distanceToWin();
+    EXPECT_GT(w, 0);
+    EXPECT_GT(b, 0);
+    EXPECT_LT(w, b); // white is closer
+    EXPECT_EQ(w, 30);
+    EXPECT_EQ(b, 45);
+}
+
+TEST_F(VanillaEngineTest, distanceToWin_symmetry) {
+    Board board;
+    // White checker at point i, Black checker mirrored at (23-i)
+    // should produce equal distances
+    board.setPoint(7, 3);
+    board.setPoint(16, -3); // mirror: 23-7=16
+    auto [w, b] = board.distanceToWin();
+    EXPECT_EQ(w, b);
+}
+
 TEST_F(VanillaEngineTest, update_phases) {
     // testing normal phase
     engine_.updatePhases(state_);

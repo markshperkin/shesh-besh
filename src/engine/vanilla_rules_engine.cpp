@@ -105,9 +105,8 @@ std::vector<Step> VanillaRulesEngine::getAllLegalMoves(const GameState& s,
           steps.emplace_back(Step{ from, to, die });
         }
         else {
-          if (to == -1 || to == 24) steps.emplace_back(Step{ from, Step::BearOffTag{}, die });
-          else if (canBearOff(side, from, s.board)) steps.emplace_back(Step{ from, Step::BearOffTag{}, die });
-        } 
+          if (canBearOff(side, from, s.board)) steps.emplace_back(Step{ from, Step::BearOffTag{}, die });
+        }
       }
     }
   }                                     
