@@ -9,7 +9,8 @@ COPY src/ src/
 COPY include/ include/
 
 RUN cmake -S . -B build \
-    -DCMAKE_BUILD_TYPE=Release && \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_TESTING=OFF && \
     cmake --build build --target server --config Release -j"$(nproc)"
 
 # Stage 2: runtime — ubuntu:24.04 with only the needed shared libs
