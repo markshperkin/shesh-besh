@@ -11,6 +11,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-venv \
     pkg-config \
     libssl-dev \
+    zlib1g-dev \
+    libjsoncpp-dev \
+    uuid-dev \
+    libbrotli-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Conan via pip (isolated venv to avoid PEP 668 restrictions)
