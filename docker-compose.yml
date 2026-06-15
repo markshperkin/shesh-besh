@@ -30,7 +30,8 @@ services:
     build: .
     environment:
       DATABASE_URL: postgresql://sheshbesh:${POSTGRES_PASSWORD}@postgres:5432/sheshbesh
-      REDIS_URL: redis://redis:6379
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
       JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY}
     ports:
       - "3000:3000"
@@ -44,6 +45,7 @@ services:
     image: nginx:alpine
     volumes:
       - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ${NGINX_CERTS_DIR:-./docker/nginx/certs}:/etc/nginx/certs:ro
     ports:
       - "80:80"
       - "443:443"

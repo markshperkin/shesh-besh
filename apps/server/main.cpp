@@ -4,33 +4,26 @@
 #include <string>
 
 int main() {
-    // Read connection config from environment
-    const char* db_url_env  = std::getenv("DATABASE_URL");
-    const char* redis_url_env = std::getenv("REDIS_URL");
-
-    const std::string database_url = db_url_env  ? db_url_env  : "";
-    const std::string redis_url    = redis_url_env ? redis_url_env : "";
+    const char* db_url_env    = std::getenv("DATABASE_URL");
+    const char* redis_host_env = std::getenv("REDIS_HOST");
+    const char* redis_port_env = std::getenv("REDIS_PORT");
 
     auto& app = drogon::app();
 
-    // Postgres connection pool
-    if (!database_url.empty()) {
-        // DATABASE_URL format: postgresql://user:pass@host:port/dbname
-        app.addDbClient(drogon::orm::DbClientBuilder{}
-            .connectionString(database_url)
-            .connectionNumber(10)
-            .build());
-        LOG_INFO << "Postgres: connecting via DATABASE_URL";
+    // Postgres — Drogon 1.9 API: createDbClient with connection string
+    if (db_url_env && *db_url_env) {
+        app.createDbClient("postgresql", db_url_env, "default", 10, false);
+        LOG_INFO << "Postgres: pool configured via DATABASE_URL";
     } else {
-        LOG_WARN << "DATABASE_URL not set — skipping Postgres connection";
+        LOG_WARN << "DATABASE_URL not set — skipping Postgres";
     }
 
-    // Redis client
-    if (!redis_url.empty()) {
-        app.addRedisClient(redis_url, "default", "", 5);
-        LOG_INFO << "Redis: connecting via REDIS_URL";
-    } else {
-        LOG_WARN << "REDIS_URL not set — skipping Redis connection";
+    // Redis — Drogon 1.9 API: takes host + port separately
+    {
+        const std::string host = redis_host_env ? redis_host_env : "127.0.0.1";
+        const unsigned short port = redis_port_env ? static_cast<unsigned short>(std::stoi(redis_port_env)) : 6379;
+        app.createRedisClient(host, port);
+        LOG_INFO << "Redis: client configured for " << host << ":" << port;
     }
 
     // Health endpoint
@@ -38,11 +31,9 @@ int main() {
         "/health",
         [](const drogon::HttpRequestPtr&,
            std::function<void(const drogon::HttpResponsePtr&)>&& callback) {
-            auto resp = drogon::HttpResponse::newHttpJsonResponse(
-                Json::Value{} );
             Json::Value body;
             body["status"] = "ok";
-            resp = drogon::HttpResponse::newHttpJsonResponse(body);
+            auto resp = drogon::HttpResponse::newHttpJsonResponse(body);
             resp->setStatusCode(drogon::k200OK);
             callback(resp);
         },
