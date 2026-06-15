@@ -29,7 +29,11 @@ services:
   server:
     build: .
     environment:
-      DATABASE_URL: postgresql://sheshbesh:${POSTGRES_PASSWORD}@postgres:5432/sheshbesh
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: sheshbesh
+      POSTGRES_USER: sheshbesh
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       REDIS_HOST: redis
       REDIS_PORT: 6379
       JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY}
