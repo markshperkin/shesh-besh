@@ -1,0 +1,2 @@
+-- Schema migrations are handled in TASK-002.
+-- This file is a placeholder executed by postgres on first container init.

@@ -32,5 +32,6 @@ FetchContent_MakeAvailable(googletest)
 # Applications
 
 add_subdirectory(tests)
+add_subdirectory(apps/server)
 # Qt client
 # add_subdirectory(apps/SheshBesh)

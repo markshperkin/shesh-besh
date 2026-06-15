@@ -1,0 +1,6 @@
+[requires]
+drogon/1.9.10
+openssl/3.3.2
+
+[generators]
+cmake
